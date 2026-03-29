@@ -8,9 +8,9 @@ def compute_energy_kwh(jobs_df, power_per_core_kw=POWER_PER_CORE_KW):
     Adds a column 'energy_kwh' to the jobs dataframe.
     """
     df = jobs_df.copy()
-    df["energy_kwh"] = ( 
+    df["energy_kwh"] = (
         # put energy calculation here
-
+        df["cpu_cores"] * df["runtime_hours"]* power_per_core_kw
     )
     return df
 
@@ -39,13 +39,13 @@ def emissions_by_region(jobs_df, carbon_intensity_dict):
 
 def compute_total_runtime(jobs_df, max_cores):
     """
-    Approximate total runtime given parallelism limit. 
+    Approximate total runtime given parallelism limit.
     Requires dictionary for max_cores_per_region with region as key.
     """
     # Sort jobs by cores descending
     df = jobs_df.sort_values("cpu_cores", ascending=False).copy()
     remaining_jobs = df.to_dict("records")
-    
+
     total_time = 0
     while remaining_jobs:
         # Assign jobs to available cores
@@ -61,6 +61,3 @@ def compute_total_runtime(jobs_df, max_cores):
         total_time += batch_time
         remaining_jobs = next_remaining
     return total_time
-
-
-
